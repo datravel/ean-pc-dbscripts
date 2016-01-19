@@ -17,9 +17,6 @@ CREATE DATABASE eanprod CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
 ## users permisions, you must run as root to get the user this permissions
 ##
-GRANT ALL ON eanprod.* TO 'eanuser'@'%' IDENTIFIED BY 'Passw@rd1';
-GRANT ALL ON eanprod.* TO 'eanuser'@'localhost' IDENTIFIED BY 'Passw@rd1';
-GRANT SUPER ON *.* to eanuser@'localhost' IDENTIFIED BY 'Passw@rd1';
 FLUSH PRIVILEGES;
 
 
@@ -1043,11 +1040,11 @@ DELIMITER ;
 ## "Something, Whatever, City, StateProvince, Country" structures or longer
 ##
 DROP FUNCTION IF EXISTS STRING_SPLIT;
-CREATE FUNCTION STRING_SPLIT(x varchar(21845), delim varchar(12), pos int) returns varchar(21845)
+CREATE FUNCTION STRING_SPLIT(x varchar(21845), delim varchar(12), pos int) returns varchar(21845) DETERMINISTIC
 RETURN TRIM(replace(substring(substring_index(x, delim, pos), length(substring_index(x, delim, pos - 1)) + 1), delim, ''));
 
 DROP FUNCTION IF EXISTS COMMAS_COUNT;
-CREATE FUNCTION COMMAS_COUNT(CommaDelimColumn VARCHAR(21845)) returns int
+CREATE FUNCTION COMMAS_COUNT(CommaDelimColumn VARCHAR(21845)) returns int DETERMINISTIC
 RETURN LENGTH(TRIM(BOTH ',' FROM CommaDelimColumn)) - LENGTH(REPLACE(TRIM(BOTH ',' FROM CommaDelimColumn), ',', ''));
 
 DROP FUNCTION IF EXISTS EXTRACT_ADDRESS_PART;
@@ -1133,6 +1130,7 @@ DELIMITER $$
 
 CREATE FUNCTION HOTELS_IN_REGION(input INT)
     RETURNS TEXT
+READS SQL DATA
 BEGIN
     SET SESSION group_concat_max_len = 1000000;
     SELECT GROUP_CONCAT(eanprod.activepropertybusinessmodel.EANHotelID ORDER BY eanprod.activepropertybusinessmodel.SequenceNumber)
@@ -1156,6 +1154,7 @@ DELIMITER $$
 
 CREATE FUNCTION HOTELS_IN_REGION_COUNT(input INT)
     RETURNS INT
+READS SQL DATA
 BEGIN
     SELECT COUNT(eanprod.activepropertybusinessmodel.EANHotelID)
     FROM   eanprod.regioneanhotelidmapping
@@ -1179,6 +1178,7 @@ DELIMITER $$
 
 CREATE FUNCTION HOTELS_IN_REGION_LIST(input_array TEXT)
     RETURNS TEXT
+READS SQL DATA
 BEGIN
     SET SESSION group_concat_max_len = 1000000;
     SELECT GROUP_CONCAT(DISTINCT eanprod.regioneanhotelidmapping.EANHotelID ORDER BY eanprod.activepropertybusinessmodel.SequenceNumber)
@@ -1201,6 +1201,7 @@ DELIMITER $$
 
 CREATE FUNCTION HOTELS_IN_REGION_LIST_COUNT(input_array TEXT)
     RETURNS INT
+READS SQL DATA
 BEGIN
     SELECT COUNT(DISTINCT eanprod.activepropertybusinessmodel.EANHotelID)
     FROM   eanprod.regioneanhotelidmapping
@@ -1223,6 +1224,7 @@ DELIMITER $$
 
 CREATE FUNCTION REGIONS_FOR_HOTEL(input INT)
     RETURNS TEXT
+READS SQL DATA
 BEGIN
     SET SESSION group_concat_max_len = 1000000;
     SELECT GROUP_CONCAT(eanprod.regioneanhotelidmapping.RegionID)
@@ -1246,6 +1248,7 @@ DELIMITER $$
 
 CREATE FUNCTION REGIONS_FOR_HOTEL_COUNT(input INT)
     RETURNS INT
+READS SQL DATA
 BEGIN
     SELECT COUNT(eanprod.regioneanhotelidmapping.RegionID)
     FROM   eanprod.regioneanhotelidmapping
@@ -1263,6 +1266,7 @@ DELIMITER ;
 DROP FUNCTION IF EXISTS SORT_LIST;
 DELIMITER $$
 CREATE FUNCTION SORT_LIST(inString TEXT) RETURNS TEXT
+DETERMINISTIC
 BEGIN
 	DECLARE delim CHAR(1) DEFAULT ','; 
 	DECLARE strings INT DEFAULT 0;
@@ -1305,6 +1309,7 @@ DELIMITER ;
 DROP FUNCTION IF EXISTS SORT_ID_LIST;
 DELIMITER $$
 CREATE FUNCTION SORT_ID_LIST(inString TEXT) RETURNS TEXT
+DETERMINISTIC
 BEGIN
 	DECLARE delim CHAR(1) DEFAULT ','; 
 	DECLARE strings INT DEFAULT 0;
@@ -1384,6 +1389,7 @@ DROP FUNCTION IF EXISTS TEXT_INSIDE_PARENTNESIS;
 DELIMITER $$
 CREATE FUNCTION TEXT_INSIDE_PARENTNESIS(input VARCHAR(510))
    RETURNS VARCHAR(255)
+DETERMINISTIC
 BEGIN
    RETURN SUBSTR(input, LOCATE('(',input)+1,(CHAR_LENGTH(input) - LOCATE(')',REVERSE(input)) - LOCATE('(',input)));
 END

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #########################################################################
 ## Process Extra files from other public sources                       ##
 ## Process tested in MAC OS Mountain Lion                              ##
@@ -9,22 +9,11 @@
 ### Environment ###
 STARTTIME=$(date +%s)
 #
-MYSQL_DIR=/usr/bin/
-# for simplicity I added the MYSQL bin path to the Windows 
-# path environment variable, for Windows set it to ""
-#MYSQL_DIR=""
-#MySQL user, password, host (Server)
-MYSQL_USER=eanuser
-MYSQL_PASS=Passw@rd1
-MYSQL_HOST=localhost
-MYSQL_DB=eanextras
-# home directory of the user (in our case "eanuser")
-HOME_DIR=/home/eanuser
-# protocol TCP All, SOCKET Unix only, PIPE Windows only, MEMORY Windows only
-MYSQL_PROTOCOL=SOCKET
-# 3336 as default,MAC using MAMP is 8889
-MYSQL_PORT=3306
-## directory under HOME_DIR
+
+. ./config-defaults.sh
+. ./config.sh
+
+MYSQL_DB=$MYSQL_DB_EXTRAS
 FILES_DIR=eanextras
 
 ### Import files ###
